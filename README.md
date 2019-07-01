@@ -1,33 +1,83 @@
-# nuclide-prebuilt-libs
+# ctags
 
-[![Build Status](https://travis-ci.org/facebook-atom/nuclide-prebuilt-libs.svg?branch=master)](https://travis-ci.org/facebook-atom/nuclide-prebuilt-libs)
-[![AppVeyor](https://ci.appveyor.com/api/projects/status/pnsyi0iqddtpbspc?svg=true)](https://ci.appveyor.com/project/Facebook/nuclide-prebuilt-libs)
+Self-sufficient fork of [node-tags](https://travis-ci.org/atom/node-ctags) prebuilt for Mac and Linux. Read all about ctags [here](http://ctags.sourceforge.net/).
 
-This repo exists to build Nuclide's binary dependencies for various architectures.
+## About
 
-## Usage in application code
+`ctags` includes prebuilt binaries of [node-tags](https://travis-ci.org/atom/node-ctags) for Mac and Linux for major versions of node.js and io.js. It's meant for use in [Atom packages](https://atom.io/packages) where your end-user might not have a proper build toolchain.
+
+This module isn't meant to be built by the end-user. It doesn't include the necessary files for it.
+
+## Documentation
+
+### findTags(tagsFilePath, tag, [options], callback)
+
+Get all tags matching the tag specified from the tags file at the path.
+
+* `tagsFilePath` - The string path to the tags file.
+
+* `tag` - The string name of the tag to search for.
+
+* `options` - An optional options object containing the following keys:
+
+  * `caseInsensitive` - `true` to include tags that match case insensitively,
+    (default: `false`)
+  * `partialMatch` - `true` to include tags that partially match the given tag
+    (default: `false`)
+  * `limit` - maximum number of matches to return. Should be a positive integer.
+    (default: unlimited)
+
+* `callback` - The function to call when complete with an error as the first
+             argument and an array containing tag objects. Each tag object contains:
+
+  * `name` - name of the tag
+  * `file` - location of the tag
+  * `kind` - kind of the tag (see `ctags --list-kinds`)
+  * `lineNumber` - line number of the tag in `file` (defaults to 0 if not provided)
+  * `pattern` (optional) - pattern to search for in `file` (only if provided in tag file)
+  * `fields` (optional) - object with string values; extra fields for the tag (only if provided in tag file)
+
+#### Example
 
 ```js
 const ctags = require('nuclide-prebuilt-libs/ctags');
-const fuzzyNative = require('nuclide-prebuilt-libs/fuzzy-native');
-const keytar = require('nuclide-prebuilt-libs/keytar');
-const ptyjs = require('nuclide-prebuilt-libs/pty');
+
+ctags.findTags('/Users/me/repos/node/tags', 'exists', (error, tags=[]) => {
+  for (tag of tags) {
+    console.log(`${tag.name} is in ${tag.file}`);
+  }
+});
 ```
 
-## Publishing `nuclide-prebuilt-libs`
+### createReadStream(tagsFilePath, [options])
 
-1. Run `npm version patch`.
-2. Push the base package version bump and release tag with `git push --follow-tags`.
-3. Wait for both Travis and AppVeyor to build and upload the release artifacts.
-4. To test your npm release: Run `./prepublish && npm pack`
-5. Run `npm publish`.
+Create a read stream to a tags file.
 
-## Things to know about sub-packages
+The stream returned will emit `data` events with arrays of tag objects
+that have `name` and `file` keys and optionally a `pattern` key if the tag file
+specified contains tag patterns.
 
-* They're _semi_ independent in that you can run `npm install` inside any of them to do work on one of them.
-* The empty `.npmignore` in the sub-packages and the `"files"` field in the root package are super important.
-* Be careful not to fall into https://github.com/atom/atom/blob/128f661/src/package.coffee#L486-L503.
-* The `"dependencies"` in the sub-packages **DO NOT** get installed when someone installs `nuclide-prebuilt-libs`.
+An `error` event will be emitted if the tag file cannot be read.
 
-## License
-`nuclide-prebuilt-libs` is Nuclide licensed, as found in the LICENSE file.
+An `end` event will be emitted when all the tags have been read.
+
+* `tagsFilePath` - The string path to the tags file.
+
+* `options` - An optional object containing the following keys.
+
+  * `chunkSize` - The number of tags to read at a time (default: `100`).
+
+Returns a stream.
+
+#### Example
+
+```js
+const ctags = require('nuclide-prebuilt-libs/ctags');
+
+const stream = ctags.createReadStream('/Users/me/repos/node/tags');
+stream.on('data', (tags) => {
+  for (tag of tags) {
+    console.log(`${tag.name} is in ${tag.file} with pattern: ${tag.pattern}`);
+  }
+});
+```
