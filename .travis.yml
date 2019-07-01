@@ -23,28 +23,25 @@ matrix:
       env: NODE_VERSION="10.15.2" CXX="clang"
 
 before_install:
-  - cd $TRAVIS_BUILD_DIR
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      docker build --rm --build-arg NODE_VERSION=$NODE_VERSION -t centos6_builder -f Dockerfile .
-    fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      rm -rf ~/.nvm/ && git clone --depth 1 "https://github.com/creationix/nvm.git" ~/.nvm
-      source ~/.nvm/nvm.sh
-      nvm install $NODE_VERSION
-      nvm use $NODE_VERSION
-      export PATH="./node_modules/.bin/:$PATH"
-    fi
+  - rm -rf ~/.nvm/ && git clone --depth 1 "https://github.com/creationix/nvm.git" ~/.nvm
+  - source ~/.nvm/nvm.sh
+  - nvm install $NODE_VERSION
+  - nvm use $NODE_VERSION
+  - export PATH="./node_modules/.bin/:$PATH"
 
 install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      docker run -v `pwd`:/build -it --rm centos6_builder sh 'cd ctags && npm install && npm run build';
+      docker run -v `pwd`:/build --rm spacedragon/centos6_builder /bin/bash -c 'source scl_source enable devtoolset-3 && source ~/.bashrc && export CC=gcc && export CXX=g++ && cd ctags && npm install && npm run build';
     fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      pushd ctags
-        npm install
-        npm run build
-      popd
+      (
+        pushd ctags
+          npm install
+          npm run build
+        popd
+      )
     fi
+
 script:
   - |
     pushd ctags
