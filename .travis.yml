@@ -34,20 +34,22 @@ install:
       docker run -v `pwd`:/build --rm spacedragon/centos6_builder /bin/bash -c 'source scl_source enable devtoolset-3 && source ~/.bashrc && export CC=gcc && export CXX=g++ && cd ctags && npm install && npm run build';
     fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      (
-        pushd ctags
-          npm install
-          npm run build
-        popd
-      )
+      pushd ctags;
+        npm install;
+        npm run build;
+      popd;
     fi
 
 script:
-  - |
-    pushd ctags
-      [[ -z "$ELECTRON" ]] && npm test
-      node-pre-gyp package testpackage
-    popd
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      docker run -v `pwd`:/build --rm spacedragon/centos6_builder /bin/bash -c 'source scl_source enable devtoolset-3 && source ~/.bashrc && export CC=gcc && export CXX=g++ && cd ctags && npm install && npm test && ./node_modules/node-pre-gyp/bin/node-pre-gyp package testpackage';
+    fi
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      pushd ctags;
+        npm test;
+        node-pre-gyp package testpackage;
+      popd;
+    fi
 
 git:
   depth: 10
