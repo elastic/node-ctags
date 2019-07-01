@@ -2,15 +2,7 @@ image: Visual Studio 2015
 
 environment:
   matrix:
-    - nodejs_version: "7"
-    - nodejs_version: "8.9.4"
-    - nodejs_version: "7.4"
-      ELECTRON: "1.7.0"
-    - nodejs_version: "8.9.4"
-      ELECTRON: "2.0.5"
-    - nodejs_version: "10.13.0"
-      ELECTRON: "3.0.13"
-    - nodejs_version: "10.13.0"
+    - nodejs_version: "10.15.2"
 
 matrix:
   fast_finish: true
@@ -34,38 +26,13 @@ install:
       cd %APPVEYOR_BUILD_FOLDER%\ctags
       npm install
       npm run build
-  - cmd: |
-      cd %APPVEYOR_BUILD_FOLDER%\fuzzy-native
-      npm install
-      npm run build
-  - cmd: |
-      cd %APPVEYOR_BUILD_FOLDER%\keytar
-      npm install
-      npm run build
-  - cmd: |
-      cd %APPVEYOR_BUILD_FOLDER%\pty
-      npm install
-      npm run tsc
-      npm run build
 
 test_script:
   - cmd: |
       cd %APPVEYOR_BUILD_FOLDER%\ctags
       IF NOT DEFINED ELECTRON (npm test)
       node_modules/.bin/node-pre-gyp package testpackage
-  - cmd: |
-      cd %APPVEYOR_BUILD_FOLDER%\fuzzy-native
-      IF NOT DEFINED ELECTRON (npm test)
-      node_modules/.bin/node-pre-gyp package testpackage
-  - cmd: |
-      cd %APPVEYOR_BUILD_FOLDER%\keytar
-      IF NOT DEFINED ELECTRON (npm test)
-      node_modules/.bin/node-pre-gyp package testpackage
-  - cmd: |
-      cd %APPVEYOR_BUILD_FOLDER%\pty
-      IF NOT DEFINED ELECTRON (npm test)
-      node_modules/.bin/node-pre-gyp package testpackage
-
+      
 build: off
 
 artifacts:
@@ -75,7 +42,7 @@ deploy:
   description: $(appveyor_repo_tag_name)
   provider: GitHub
   auth_token:
-    secure: rdBc+YLCOY3cFD38CjEn4Z/b6uvCBFiwHAiLg5Lwzs2WoPS0uLTgrW2puQSV5oZp
+    secure: AfJEZz4Zv9OTyO2KxHZ3nF6JSFu0gjfKJKxS/WIyb3wInsmCAeBKlzunN5F1q7DU
   artifact: /.*\.tar\.gz/
   force_update: true
   on:
