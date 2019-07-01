@@ -1,7 +1,7 @@
 {
-  "name": "node-ctags",
+  "name": "@elastic/node-ctags",
   "description": "node-ctags prebuild package",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "keywords": [],
   "license": "SEE LICENSE IN LICENSE",
   "files": [
