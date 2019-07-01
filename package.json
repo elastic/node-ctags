@@ -1,13 +1,14 @@
 {
   "name": "@elastic/node-ctags",
   "description": "node-ctags prebuild package",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "keywords": [],
   "license": "SEE LICENSE IN LICENSE",
   "files": [
     "ctags/build/ctags-*",
     "ctags/lib",
-    "ctags/package.json"
+    "ctags/package.json",
+    "find-binary.js"
   ],
   "main": "./index.js",
   "repository": "https://github.com/elastic/node-ctags",
