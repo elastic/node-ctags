@@ -13,17 +13,11 @@ VERSION=$(node -p 'require("./package.json").version')
 BINARY_HOST_MIRROR="https://github.com/elastic/node-ctags/releases/download/v${VERSION}/"
 
 TARGETS=(
-  "--target_platform=linux --runtime=node --target=7.0.0"
-  "--target_platform=linux --runtime=node --target=8.9.3"
-  "--target_platform=linux --runtime=node --target=10.13.0"
+  "--target_platform=linux --runtime=node --target=10.15.2"
 
-  "--target_platform=darwin --runtime=node --target=7.0.0"
-  "--target_platform=darwin --runtime=node --target=8.9.3"
-  "--target_platform=darwin --runtime=node --target=10.13.0"
+  "--target_platform=darwin --runtime=node --target=10.15.2"
 
-  "--target_platform=win32 --runtime=node --target=7.0.0"
-  "--target_platform=win32 --runtime=node --target=8.9.3"
-  "--target_platform=win32 --runtime=node --target=10.13.0"
+  "--target_platform=win32 --runtime=node --target=10.15.2"
 )
 
 MODULE_NAMES=(
