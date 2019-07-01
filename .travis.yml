@@ -10,31 +10,17 @@ addons:
       - g++-7
       - libsecret-1-dev
 
+services: docker
+
 matrix:
   # abi versions https://github.com/mapbox/node-pre-gyp/blob/master/lib/util/abi_crosswalk.json
   include:
     # linux
-    - os: linux   # abi 51
-      env: NODE_VERSION="7" CXX="g++-7"
     - os: linux   # abi 57
-      env: NODE_VERSION="8.9.3" CXX="g++-7"
-    - os: linux   # abi 54
-      env: NODE_VERSION="7.4" ELECTRON="1.7.0" CXX="g++-7"
-    - os: linux   # abi 64 (vscode 1.31)
-      env: NODE_VERSION="10.13.0" CXX="g++-7" ELECTRON="3.0.13"
-    - os: linux   # abi 64
-      env: NODE_VERSION="10.13.0" CXX="g++-7"
+      env: NODE_VERSION="10.15.2" CXX="g++-7"
     # os x x86
-    - os: osx     # abi 51
-      env: NODE_VERSION="7" CXX="clang"
-    - os: osx     # abi 57
-      env: NODE_VERSION="8.9.3" CXX="clang"
-    - os: osx     # abi 54
-      env: NODE_VERSION="7.4" ELECTRON="1.7.0" CXX="clang"
-    - os: osx   # abi 64 (vscode 1.31)
-      env: NODE_VERSION="10.13.0" CXX="clang" ELECTRON="3.0.13"
     - os: osx     # abi 64
-      env: NODE_VERSION="10.13.0" CXX="clang"
+      env: NODE_VERSION="10.15.2" CXX="clang"
 
 before_install:
   - rm -rf ~/.nvm/ && git clone --depth 1 "https://github.com/creationix/nvm.git" ~/.nvm
@@ -44,52 +30,21 @@ before_install:
   - export PATH="./node_modules/.bin/:$PATH"
 
 install:
-  - if [[ -n "$ELECTRON" ]]; then
-      export npm_config_target=$ELECTRON;
-      export npm_config_disturl=https://atom.io/download/electron;
-      export npm_config_runtime=electron;
-      export npm_config_build_from_source=true;
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      docker run -v `pwd`:/build --rm spacedragon/centos6_builder /bin/bash -c 'source scl_source enable devtoolset-3 && source ~/.bashrc && export CC=gcc && export CXX=g++ && cd ctags && npm install && npm run build';
     fi
-  - |
-    pushd ctags
-      npm install
-      npm run build
-    popd
-  - |
-    pushd fuzzy-native
-      npm install
-      npm run build
-    popd
-  - |
-    pushd keytar
-      npm install
-      npm run build
-    popd
-  - |
-    pushd pty
-      npm install
-      npm run tsc
-      npm run build
-    popd
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      (
+        pushd ctags
+          npm install
+          npm run build
+        popd
+      )
+    fi
 
 script:
   - |
     pushd ctags
-      [[ -z "$ELECTRON" ]] && npm test
-      node-pre-gyp package testpackage
-    popd
-  - |
-    pushd fuzzy-native
-      [[ -z "$ELECTRON" ]] && npm test
-      node-pre-gyp package testpackage
-    popd
-  - |
-    pushd keytar
-      [[ -z "$ELECTRON" ]] && npm test
-      node-pre-gyp package testpackage
-    popd
-  - |
-    pushd pty
       [[ -z "$ELECTRON" ]] && npm test
       node-pre-gyp package testpackage
     popd
@@ -105,11 +60,11 @@ branches:
 deploy:
   provider: releases
   api_key:
-    secure: DcAmqsYyHesJI2I5q2Ugb2WKqV9fbVfLcpSfAN3awCX3YQaDrWzIT6w8TdVLAFYlw1Hj7P/TVHPxZOcEgZqP8pVM4Y28Tt8b6IcYtpT2Hs1k9FhHJLjZsYIw0l5ka9r2hd03fDXbmLLSg++v8tQjIUkzJrxlop/1wA/EbE03oSoJJ8lHGW3wtCXxkisrkza14IK7MIuROY3gqkeOVlc6wnqNe82ijF7URWnIpspXFxqW9tRHUcb9XjsJqB+by+et8bhtnJp+CzK0Fiz7ENKFNh+680/e5grVH0b8LrH7ChLkIf/AGJAFRkgta48PnvxKwlrhivi1jOfB5wejl3N2Zjm2XHT70Nj4j5ShfvPBxUxhV69nBKiXsl9JP0uLSUItLuaSuf09GiJXk53So/dgQQoiLvGQ6XkRZA2EoRR8G4WzhTG7V3IiKWScEA2o6g7F/v66w4vcTgvWWAQAgvxy2KMRkR1ModvcNxmyOkJqPOcG5vYw4MqZOZzfVOeqxTEUgks/ZC7TwiJnhmQrdQYWUxxqO1l4J+oBfu/3QE2iK7qrQEvMtJTm9IOQZh/Jk7zzCFySPlwpp7zwxVenUx0F3Vdc7SdLUVCEDQi+erR+4cbWJx13wtJCn5qVTrV4+vkR1Th8xlvCFTGRqy335DpGtdfNZBCfkNhSetcCUdwW4kQ=
+    secure: Jaf7wg4fLcn1rcysdKOH4xQG7On2o7g4xarjFszjCJFPAIZHHaIPqQHeS+jlhiG/9Wt/3XbNVQRctlnCIK5MyEz2c8AKnLnMcBpgd276NUfx87PomjhZnpqXCB4Txi9Y/UHvmIo7gVrUUWo38XDpIJ7dbe9f8cNzQsMi9RZfsg/h9MIySJPyYRq4bqrM5OxfADDrLRhBHEq+QcJpYsZJ5zKyTig2LvFFoPPVdf+y5HK6oQDMKUTu5yVVYBr8ORPvHzMr8PLVbJLvsyxzReJ47eF/B8AF+r4I+pxsu6Jhpa7KPa8cs32uaBnzAj+DL1GgomKqG8Y4fJ6YuhcDKdpIemB7Bkt6nO2JSMuOYdBpo7LvgAPKqj2RGEBOw6Os7SCSragEls3UEszRt2oIRVP8VcAq1R43T0RuFz69+2YOy99/v3aRTUC86gcU6A0CvrxqF7N4vAomKJIZJcIFEg4DwoQqWh5vscLkpdTx0wkWfNlPzOFMOk3pGZ9JIZvbR68EheP/cJVkZqIx3+OUcCDFqLKhLPxp67Qvj9Zv5B7W21P8ott6D3aEn1+LNmGmEm4yPOk2RQFDprqA/oDGAcmbUlXqa9YdALjHHaneI9A+czrK8iv6Ik730nYeDYih3MRhLkWDHTcblTdJHHZUyBZdkxBIzKCYviwaTi6CxZW0McQ=
   skip_cleanup: true
   file_glob: true
   file: "*/build/stage/*.tar.gz"
   overwrite: true
   on:
-    repo: facebook-atom/nuclide-prebuilt-libs
+    repo: elastic/node-ctags
     tags: true

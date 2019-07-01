@@ -10,34 +10,18 @@ if [[ -n "$npm_config_argv" ]]; then
 fi
 
 VERSION=$(node -p 'require("./package.json").version')
-BINARY_HOST_MIRROR="https://github.com/facebooknuclide/nuclide-prebuilt-libs/releases/download/v${VERSION}/"
+BINARY_HOST_MIRROR="https://github.com/elastic/node-ctags/releases/download/v${VERSION}/"
 
 TARGETS=(
-  "--target_platform=linux --runtime=electron --target=1.7.0"
-  "--target_platform=linux --runtime=node --target=7.0.0"
-  "--target_platform=linux --runtime=node --target=8.9.3"
-  "--target_platform=linux --runtime=electron --target=3.0.13"
-  "--target_platform=linux --runtime=node --target=10.13.0"
+  "--target_platform=linux --runtime=node --target=10.15.2"
 
-  "--target_platform=darwin --runtime=electron --target=1.7.0"
-  "--target_platform=darwin --runtime=node --target=7.0.0"
-  "--target_platform=darwin --runtime=node --target=8.9.3"
-  "--target_platform=darwin --runtime=electron --target=3.0.13"
-  "--target_platform=darwin --runtime=node --target=10.13.0"
+  "--target_platform=darwin --runtime=node --target=10.15.2"
 
-  "--target_platform=win32 --runtime=electron --target=1.7.0"
-  "--target_platform=win32 --runtime=electron --target=2.0.5"
-  "--target_platform=win32 --runtime=node --target=7.0.0"
-  "--target_platform=win32 --runtime=node --target=8.9.3"
-  "--target_platform=win32 --runtime=electron --target=3.0.13"
-  "--target_platform=win32 --runtime=node --target=10.13.0"
+  "--target_platform=win32 --runtime=node --target=10.15.2"
 )
 
 MODULE_NAMES=(
   "ctags"
-  "fuzzy-native"
-  "keytar"
-  "pty"
 )
 
 for module_name in "${MODULE_NAMES[@]}"; do
